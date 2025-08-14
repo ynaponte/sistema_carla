@@ -28,8 +28,8 @@ class VectorDatabaseManager:
             return
         self.embedding = OllamaEmbeddings(model=embedding_model)
         self.text_splitter = MarkdownTextSplitter(
-            chunk_size=1500,
-            chunk_overlap=100,
+            chunk_size=1800,
+            chunk_overlap=200,
             length_function=len,
         )
         self.vectorstore = None
