@@ -1,0 +1,194 @@
+extract_introduction_topic_context:
+  description: >
+    Extract and refine the specific contextual information required for writing the "Introduction" topic:
+    "{introduction_topic_title}" (part of subsection "{introduction_subsection_name}"), which has the
+    rhetorical purpose: "{introduction_rhetorical_purpose}" and is further described as:
+    "{introduction_topic_description}". This topic belongs to a subsection described as:
+    "{introduction_subsection_description}".
+
+    The source for extraction is the consolidated context:
+    {introduction_consolidated_context}
+
+    **Execution Steps**:
+    1.  **Analyze and Isolate Relevant Information**:
+        - Carefully read the consolidated context.
+        - Identify all sentences, phrases, or data points that directly relate to the topic's title and its
+          description, from the various categories within the consolidated context
+          (e.g., "Research Problem", "Main Objectives", "Main Findings/Results", "Contributions/Implications",
+          "Brief Overview of Methodology", "Essential Theoretical Context").
+        - **Consider the overall purpose of the subsection as defined by it's description**
+          to ensure the extracted information is aligned with the broader context.
+        - Prioritize information that aligns with the the rethorical purpose of the topic.
+    2.  **Synthesize Specific Context**:
+        - Consolidate the identified relevant information into a coherent text. This text should serve as the
+          specific "raw material" for the writer for this particular topic.
+        - Ensure the synthesized text directly addresses the needs implied by the topic's title and description,
+          **and contributes to the objective of its parent subsection**.
+        - Include any explicit sources/contexts from the original consolidated context if they add clarity
+          (e.g., "[Source/Context]: [Analytical Report - Contributions]").
+
+    **Guidelines**:
+    - **Precision**: Extract only information directly relevant to the specific topic.
+    - **Conciseness**: The output should be as brief as possible while retaining all necessary details for the writer.
+    - **Direct Mapping**: The extracted information should clearly support the topic's title and description.
+
+    **Restrictions**:
+    - Do not paraphrase or rewrite the extracted information significantly; present it as a focused collection
+      of relevant facts/statements.
+    - Do not invent information or infer beyond what is present in the consolidated context.
+    - Output must be in Markdown format, without ```.
+
+    **Success Criteria**:
+    - Returns a concise, structured text in Markdown that provides all necessary information for writing about
+      "{introduction_topic_title}" based on the consolidated introduction context.
+
+  expected_output: >
+    A concise Markdown text summarizing the specific information relevant to writing about the topic 
+    "{introduction_topic_title}" from the consolidated introduction context.
+    Example:
+    **Contexto para Tópico: [Título do Tópico]**
+    - Problema de Pesquisa: [Descrição do problema relevante ao tópico].
+    - Achados Principais: [Achados relevantes ao tópico].
+    - Contribuições: [Contribuições relevantes ao tópico].
+    - etc.
+  agent: introduction_topic_researcher
+
+introduction_topic_external_citations_research:
+  description: >
+    Search for supporting evidence and potential citations from 'reference' literature for the "Introduction" topic:
+    "{introduction_topic_title}" (part of subsection "{introduction_subsection_name}"), detailed as:
+    "{introduction_topic_description}".
+    The rhetorical purpose is: "{introduction_rhetorical_purpose}".
+    Use your `QueryArticlesTool` to find concise statements, facts, or established knowledge that directly
+    support the claims or background information intended for this topic, as outlined in its description.
+    The goal is to provide specific, citable snippets to enhance the academic credibility of the Introduction.
+
+    **Execution Steps**:
+      1.  **Construct Focused Search Query**:
+          - Based on "{introduction_topic_title}", "{introduction_topic_description}", and
+            "{introduction_rhetorical_purpose}", generate a very focused search query. The query
+            should aim to find direct supporting statements, statistics, or established facts in scholarly articles
+            that justify or contextualize the information this topic will convey.
+      2.  **Configure `QueryArticlesTool`**:
+          - Set `doc_type` to ['reference'].
+          - Set `top_k` to 4.
+      3.  **Execute Search & Analyze Results**:
+          - Run `QueryArticlesTool`. Critically evaluate the retrieved chunks for direct, concise relevance.
+            Look for sentences or short paragraphs that can be directly cited or easily paraphrased with a citation.
+            Prioritize information that aligns with the topic's context and purpose.
+      4.  **Synthesize Citable Insights**:
+          - Consolidate the most relevant citable snippets (sentence-level or very short phrases) into a brief text in Brazilian Portuguese.
+          - For each snippet, clearly indicate its original source reference, i.e, it's metadata.
+          - If no directly citable and relevant information is found, state that no specific external citations were identified for this topic.
+
+    **Guidelines**:
+      - **Specificity**: Seek direct, citable evidence for claims.
+      - **Conciseness**: Prioritize short, impactful statements.
+      - **Credibility**: Focus on established academic sources ('reference').
+      - **Citation-Ready**: The output should be easy for the writer to integrate with citations.
+
+    **Restrictions**:
+      - Search *only* in `doc_type`: ['reference'].
+      - Do not provide general explanations of theories; This task is for *supporting citations*.
+      - `top_k` must be ≥2 and ≤5.
+      - Output must be in Markdown format, without ```.
+
+    **Success Criteria**:
+      - `QueryArticlesTool` returns relevant, citable snippets from 'reference' documents.
+      - The output is a concise Markdown text in Brazilian Portuguese, containing potential citations or explicit statements of their absence.
+
+  expected_output: >
+    A concise Markdown text, in Brazilian Portuguese, providing specific, citable statements from 'reference' literature relevant to 
+    the topic "{introduction_topic_title}". If no such citations are found, state "No specific external citations identified for this topic.".
+    Example:
+    **Citações de Referência para Tópico: [Título do Tópico]**
+    - "A importância de [conceito] foi amplamente demonstrada em estudos recentes."
+    - "Lacunas significativas ainda persistem na compreensão de [fenômeno]."
+    - Ou: "No specific external citations identified for this topic."
+  agent: introduction_topic_researcher
+
+write_introduction_topic_text:
+  description: >
+    Write a clear, concise, and academically compelling multi-paragraph text in formal, precise, and
+    academic Brazilian Portuguese for the "Introduction" topic: "{introduction_topic_title}".
+    This topic belongs to subsection "{introduction_subsection_name}", which is described as:
+    "{introduction_subsection_description}". The specific role of this topic is: 
+    "{introduction_topic_description}".
+    Its rhetorical purpose is: "{introduction_rhetorical_purpose}".
+    Follow the narrative structure guided by: "{introduction_narrative_guidance}".
+
+    Base the text on the synthesized insights from:
+    1. `extract_introduction_topic_context` (Output: `specific_topic_context`):
+       Provides the precise contextual information extracted for the current topic.
+    2. `introduction_topic_external_citations_research` (Output: `external_citations_insights`):
+       Provides specific, citable statements from 'reference' literature.
+
+    The final text must accurately reflect the extracted context, achieve its rhetorical purpose, and
+    contribute effectively to the overall flow of the Introduction section, enhanced by academic citations.
+
+    **Input Context**:
+    - `specific_topic_context`: Output from `extract_introduction_topic_context`.
+    - `external_citations_insights`: Output from `introduction_topic_external_citations_research`.
+
+    **Execution steps:**
+    1.  Thoroughly review `specific_topic_context` to understand the exact information to be included for this topic.
+    2.  Thoroughly review `external_citations_insights` for relevant supporting citations.
+    3.  Carefully consider the topic's title("{introduction_topic_title}"), description ("{introduction_topic_description}"),
+        rethorical purpose ("{introduction_rhetorical_purpose}"), and critically, the narrative guidance
+        ("{introduction_narrative_guidance}").
+    4.  **Crucially, keep the overall purpose of the subsection ("{introduction_subsection_description}") in mind**
+        to ensure the topic's text contributes cohesively to the subsection's objective.
+    5.  Compose a 100-300 word text in Brazilian Portuguese (adjust length based on topic complexity and general introduction conciseness), 
+        ensuring that you:
+        - Directly address the topic's title and its detailed description.
+        - Structure the paragraphs and content flow according to the provided narrative guidance.
+        - Integrate all relevant information from `specific_topic_context`.
+        - **Judiciously incorporate relevant citable statements from `external_citations_insights`** to support claims, contextualize 
+          information, or highlight established knowledge. Ensure proper citation format.
+        - Maintain a concise, yet informative, presentation style suitable for an introduction.
+        - Ensure the explanation is clear, accurate, and directly supported by the provided insights.
+    5.  Ensure the text is continuous, coherent, uses precise terminology, and maintains a formal,
+        objective, academic tone appropriate for an introduction.
+    6.  Format your response in a JSON object with the keys "topic_title"
+        (value: "{introduction_topic_title}") and "generated_text" (value: the written text).
+
+    **Writing Directives**:
+    - Write in formal, academic Brazilian Portuguese.
+    - Strictly follow the narrative guidance for structure, content inclusion, and emphasis.
+    - Use the rhetorical purpose of the topic to shape the explanation and argumentation.
+    - Prioritize factual and consolidated information from `specific_topic_context`.
+    - **Integrate citations from `external_citations_insights` where appropriate to bolster academic credibility.**
+    - **Ensure the text for this topic seamlessly contributes to the overall purpose and flow of the subsection.**
+    - Maintain an objective, analytical, and precise tone.
+    - Ensure paragraphs are well-developed and flow logically. Avoid lists unless specified by
+      narrative guidance.
+
+    **Constraints:**
+    - Do not perform new research or invent/assume information beyond the provided insights.
+    - The generated text should be between 100 and 300 words.
+    - The output JSON must correctly use the keys "topic_title" and "generated_text".
+    - Write exclusively in Brazilian Portuguese.
+    - Avoid subjective statements unless reporting on a documented debate or perspective.
+    - **Ensure citations are included using the "" format for information derived from `external_citations_insights`.**
+
+    **Success Criteria**:
+    - The generated text is fully based on the provided insights and adheres to all guiding inputs
+      from the outline phase.
+    - The text accurately and clearly explains the aspect of "{introduction_topic_title}" and its relevance
+      to the introduction.
+    - The text is 100-300 words, in Brazilian Portuguese, and written in appropriate academic style.
+    - The output is a valid JSON object with "topic_title" and "generated_text" keys.
+    - **Relevant information from `external_citations_insights` is incorporated with appropriate citations.**
+
+  expected_output: >
+    A JSON object containing the introduction topic title and the generated multi-paragraph
+    academic text for that topic.
+    The text will be 100-300 words, in Brazilian Portuguese, explanatory, analytical, and suitable
+    for an "Introduction" section.
+    Example structure:
+    {
+      "topic_title": "{introduction_topic_title}",
+      "generated_text": "Este tópico aborda [aspecto central do tópico]. Conforme [informação extraída do contexto específico], é fundamental para [relevância para o estudo]. Além disso, [detalhes adicionais do contexto específico]..."
+    }
+  agent: introduction_topic_writer
+  context: [extract_introduction_topic_context, introduction_topic_external_citations_research]

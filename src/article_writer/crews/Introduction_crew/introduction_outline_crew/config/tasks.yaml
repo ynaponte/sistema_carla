@@ -1,0 +1,426 @@
+extract_context_from_analytical_report:
+  description: >
+    Extract primary research information from the provided **Analytical Report** to establish foundational context
+    for the "Introduction" section. The objective is to identify and condense the core research problem,
+    main objectives, significant findings, and unique contributions directly from the report's narrative text,
+    emphasizing aspects specific to this study.
+
+    **Analytical Report**:
+    {report}
+
+    **Input Detailing**:
+    - **Analytical Report (`{report}`)**: A research report that presents the objectives, methodology, results, and critical
+      analysis of a scientific study. It is structured into five consistent sections:
+        1. Apresentação Clara dos Elementos Visuais (Presentation of Visual Elements)
+        2. Análise dos Resultados (Analysis of Results)
+        3. Interpretação Crítica (Critical Interpretation)
+        4. Avaliação das Limitações do Estudo (Evaluation of Study Limitations)
+        5. Contribuições (Contributions)
+
+    **Execution Steps**:
+    1.  **Analyze Report for Study's Core**:
+        - Critically analyze Section 5 ("Contribuições") to identify the **most unique and impactful contributions** of *this specific study*. Prioritize direct statements about novelty and advancements.
+        - Review Section 2 ("Análise dos Resultados") to find the **primary and most significant outcomes and observations** of the study, as well as the *specific problem or challenge* that *this study* addresses.
+        - Analyze Section 3 ("Interpretação Crítica") to discern the *specific meaning and significance of **these particular results***, especially how they explicitly align with, refine, or diverge from existing literature *as discussed in the report*.
+        - Review Section 4 ("Avaliação das Limitações do Estudo") for mentions of limitations that, by their context in the report, highlight the *specific scope or innovative aspect* achieved *despite* those limitations (e.g., "despite X limitation, the work uniquely achieves Y").
+    2.  **Synthesize into Structured Markdown**:
+        - Consolidate all identified information into a structured Markdown summary. Ensure the content captures the **specificity and uniqueness of *this research***.
+
+    **Guidelines**:
+    - **Specificity is Key**: Prioritize details that make this study distinct from general research in the field.
+    - **Conciseness**: Summarize points succinctly.
+    - **Traceability**: All extracted information must be directly verifiable within the provided report sections.
+
+    **Restrictions**:
+    - Do not invent information not present in the analytical report.
+    - Output must be structured Markdown, without ```.
+
+    **Success Criteria**:
+    - Returns a Markdown formatted text summarizing the core elements (problem, objectives, main findings, contributions) of the study exclusively from the analytical report, with a strong emphasis on its uniqueness.
+  expected_output: >
+    A structured text summary, formatted in Markdown, without ```, containing core introductory elements exclusively from the analytical report, with specific details of the study. Example format:
+
+    **Context from Analytical Report**:
+    - **Research Problem**: [Specific problem addressed by THIS study, as detailed in the report].
+    - **Main Objectives**: [Specific objectives of THIS study, as detailed in the report].
+    - **Main Findings/Results**: [Specific, unique findings of THIS study, as detailed in the report].
+    - **Contributions/Implications**: [Specific, unique contributions and implications of THIS study, as detailed in the report].
+    - **Relevant Limitations**: [Specific limitations of THIS study, as detailed in the report, and how they define scope or innovation].
+  agent: introduction_context_extractor
+
+extract_context_from_section_outlines:
+  description: >
+    Extract and consolidate the *structural and high-level content highlights* from the provided JSON outlines
+    of other sections (Conclusion, Results and Discussion, Methodology, Theoretical Foundation).
+    The primary objective is to provide a **complementary, structured overview of the study's key thematic areas,
+    methodological strategies, and conclusive statements, specifically as they are presented in the outlines,**
+    to enrich the context for the "Introduction" section. This task aims to capture the **outline's perspective**
+    on the research's components, distinct from the narrative focus of the analytical report.
+
+    **Outlines of Other Sections**:
+    {other_sections_outlines}
+
+    **Input Detailing**:
+    - **Outlines of Other Sections (`{other_sections_outlines}`)**: A JSON object containing the structural outlines for the
+      Conclusion, Results and Discussion, Methodology, and Theoretical Foundation sections.
+      - Each section outline is presented under a key (e.g., 'conclusion_outline', 'methodology_outline').
+      - **General Outline Structure**: All outlines are expected to contain:
+          - `section_name` (string): The name of the section (e.g., "Methodology").
+          - A list of content elements. This list can be `subsections` (for Methodology, Results and Discussion, Theoretical Foundation)
+            or `topics` (for Conclusion).
+          - **Common Element Details**:
+              - If it's a `subsection` object: it contains `subsection_name`, and may contain `subsection_description` (string)
+                and `subsection_flow` (string). It also contains a `discussion_topics` list.
+              - If it's a `topic` object (within a `discussion_topics` list or directly as `topics` list): it contains `topic_title` (string),
+                `topic_description` (string), `rhetorical_purpose` (string), and `narrative_guidance` (string).
+              - **The most crucial fields for extraction are `subsection_description` and `topic_description`**.
+
+    **Execution Steps**:
+    1.  **Parse JSON Input**:
+        - Parse the `{other_sections_outlines}` JSON to access the structured information from all provided outlines.
+    2.  **Extract Key Outline Summaries**:
+        - Iterate through each section outline (Conclusion, Results and Discussion, Methodology, Theoretical Foundation).
+        - For each outline, identify and extract the most informative `subsection_description` and `topic_description` fields.
+        - **Objective of this step**: Capture the *high-level summary* provided within these fields, representing the outline's concise description of its own content.
+    3.  **Categorize Extracted Summaries for Introduction Components**:
+        - Consolidate the extracted `topic_description`s and `subsection_description`s into a structured Markdown summary.
+        - Categorize them specifically under headings relevant for an introduction:
+            - **"Theoretical Context Highlights"**: Aggregate `subsection_description` and `topic_description` from the Theoretical Foundation outline that summarize core concepts and theoretical frameworks as presented in that outline.
+            - **"Methodological Approach Highlights"**: Aggregate `subsection_description` and `topic_description` from the Methodology outline that describe the overall research strategy and key methodological paradigms.
+            - **"Key Findings and Discussion Highlights (from Outlines)"**: Aggregate `topic_description` from the Results and Discussion outline (both 'Results' and 'Discussion' subsections) that summarize the main findings, their implications, and comparisons.
+            - **"Study Contributions & Outlook Highlights (from Outlines)"**: Aggregate `topic_description` from the Conclusion outline (especially "Synthesis of Key Findings" and "Implications and Contributions") and relevant parts of the Results and Discussion outline that highlight the study's overall impact and future directions.
+    4.  **Format Final Output**:
+        - Consolidate all synthesized information into a single, structured Markdown summary.
+
+    **Guidelines**:
+    - **Purpose-Driven Extraction**: Every piece of extracted information must directly contribute to understanding the *outline's summary* of the research's theoretical, methodological, results, or contribution aspects.
+    - **Outline's Perspective**: Focus on what the outline *itself* says about the content of its sections/topics, using `subsection_description` and `topic_description` as primary sources.
+    - **Agnostic Extraction**: Do NOT rely on specific subsection or topic names (e.g., "Overview of Methodology"). Extract based on the *semantic content* and its *position within the outline structure* (e.g., descriptions of high-level methodological points, or primary result summaries).
+    - **Conciseness**: Summarize extracted points succincty.
+    - **Traceability**: All extracted information must be directly verifiable within the provided outlines.
+
+    **Restrictions**:
+    - Do not invent information not present in the provided outlines.
+    - Do not analyze the analytical report; focus solely on the structured JSON outlines.
+    - Do not include `topic_title`, `rhetorical_purpose`, `narrative_guidance`, `visual_elements`, or `numerical_results` in the output content.
+    - Output must be structured Markdown, without ```.
+
+    **Success Criteria**:
+    - Returns a Markdown formatted text summarizing high-level introductory elements, extracted and categorized exclusively from the `subsection_description` and `topic_description` fields within the provided section outlines.
+  expected_output: >
+    A structured text summary, formatted in Markdown, without ```, containing high-level introductory elements exclusively from the section outlines. Example format:
+
+    **Context from Section Outlines**:
+    - **Theoretical Context Highlights**: [Summarized relevant theoretical concepts and background from "Theoretical Foundation" outline's topic_description and subsection_description].
+    - **Methodological Approach Highlights**: [Summarized key methodological approaches and techniques from "Methodology" outline's topic_description and subsection_description].
+    - **Key Findings and Discussion Highlights (from Outlines)**: [Summarized most significant findings from "Results and Discussion" outline's topic_description].
+    - **Study Contributions & Outlook Highlights (from Outlines)**: [Summarized contributions and implications from "Conclusion" and "Results and Discussion" outlines' topic_description].
+  agent: introduction_context_extractor
+
+synthesize_introduction_context:
+  description: >
+    Synthesize and structure the extracted information from both the **Analytical Report** and the **Section Outlines**,
+    provided from the output of the tasks `extract_context_from_analytical_report` and `extract_context_from_section_outlines`,
+    into a cohesive, highly specific, and comprehensive context for the "Introduction" section of a scientific paper.
+    The primary objective is to combine these diverse sources, resolve any redundancies or subtle conflicts,
+    and amplify the unique research problem, precise objectives, distinct main findings, and novel contributions
+    of *this particular study*, ensuring that the synthesized output perfectly informs the subsequent outline generation.
+
+    **Input Detailing**:
+      - **Context from Analytical Report (hereinafter refered as `analytical_report_context`) from `extract_context_from_analytical_report`**:
+        - **What it is**: The Markdown structured summary produced by the `extract_context_from_analytical_report` task.
+        - **What it contains**: Specific details and unique aspects of *this study* as presented in the analytical report. 
+          This is the primary source for the study's precise problem, objectives, and unique contributions.
+        - **Format**: Markdown, with headings like "Research Problem", "Main Objectives", "Main Findings/Results", 
+          "Contributions/Implications", "Relevant Limitations".
+
+      - **Context from Section Outlines (hereinafter refered as `section_outlines_context`) from `extract_context_from_section_outlines`**:
+        - **What it is**: The Markdown structured summary produced by the `extract_context_from_section_outlines` task.
+        - **What it contains**: High-level structural and thematic highlights from the outlines of Conclusion, Results 
+          and Discussion, Methodology, and Theoretical Foundation. This provides the *outline's perspective* on the research's 
+          components.
+        - **Format**: Markdown, with headings like "Theoretical Context Highlights", "Methodological Approach Highlights", 
+          "Key Findings and Discussion Highlights (from Outlines)", "Study Contributions & Outlook Highlights (from Outlines)".
+
+    **Execution Steps**:
+      1.  **Integrate and Prioritize Inputs**:
+        - Carefully read and cross-reference `analytical_report_context` and `section_outlines_context`.
+        - **Prioritize information from `analytical_report_context`** for specific statements about *this study's unique problem, 
+          precise objectives, singular findings, and novel contributions*. This report is the definitive source for *what the author 
+          explicitly states about their work*.
+        - Use `section_outlines_context` to:
+            - **Complement and elaborate** on the points from the analytical report with structural and thematic details from the outlines.
+            - Provide high-level overviews for methodology and theoretical context, as presented in the outline structure.
+            - Confirm and add nuance to findings and contributions from the outline's perspective.
+      2.  **Synthesize for "Research Problem"**:
+          - Formulate a concise problem statement. Integrate explicit problem statements or identified gaps from the `analytical_report_context`. 
+            Use theoretical context from outlines to frame the background or existing challenges *that this study specifically addresses*. 
+            **Ensure the problem is highly specific to the research's unique focus.**
+      3.  **Synthesize for "Main Objectives"**:
+          - Define clear, precise, and actionable objectives. Integrate objectives directly stated or strongly inferred from the 
+            `analytical_report_context`. Use methodological or theoretical outline contexts from `section_outlines_context` to refine how 
+            these objectives will be met. **Ensure these are the *exact and specific goals* of *this research*.**
+      4.  **Synthesize for "Main Findings/Results"**:
+          - Consolidate the most significant and impactful findings. Combine specific results and observations from the 
+            `analytical_report_context` with key findings highlights from the "Results and Discussion Highlights (from Outlines)" in 
+            `section_outlines_context`. **Crucially, amplify the novelty and unique impact of *these specific results* as demonstrated by 
+            the study.** Avoid generic statements about findings.
+      5.  **Synthesize for "Contributions/Implications"**:
+          - Articulate the most relevant theoretical and/or practical contributions. Integrate direct contributions and advancements from 
+            the `analytical_report_context`. Reinforce with insights from the "Conclusion" and "Results and Discussion" parts of 
+            `section_outlines_context`. **Ensure contributions are framed as *unique advances achieved by *this study*, clearly addressing 
+            specific gaps or advancing the field in a novel way*.**
+      6.  **Synthesize for "Brief Overview of Methodology"**:
+          - Formulate a concise, high-level summary of the core methodological approach. Combine relevant mentions from the 
+            `analytical_report_context` (if any explicit methodology is mentioned) with highlights from "Methodological Approach Highlights" 
+            in `section_outlines_context`. Focus on what makes *this study's methods* distinct or particularly effective, without excessive 
+            technical specifics.
+      7.  **Synthesize for "Essential Theoretical Context"**:
+          - Identify and briefly explain the fundamental theoretical concepts that underpin the research. Integrate relevant theoretical 
+            concepts from `analytical_report_context` (if implicitly present) and "Theoretical Context Highlights" from `section_outlines_context`. 
+            **Explicitly connect these theories to *this study's specific problem, unique solution, or distinct methodology*.**
+      8.  **Resolve Redundancies and Conflicts**:
+          - Review the synthesized content across all categories. Eliminate any redundant phrasing.
+          - Identify and resolve any subtle conflicts or inconsistencies between the information derived from the analytical report and the 
+            outlines, prioritizing the most precise and explicit statements about *this study*.
+      9.  **Format Final Output**:
+          - Consolidate all synthesized information into a single, structured Markdown summary.
+          - Adhere strictly to the `expected_output` format, using clear bullet points and appropriate `Source/Context` indications for each 
+            item as specified in the `expected_output`.
+          - Ensure each item is concise, **highly specific to *this particular study***, and directly relevant to an introduction.
+
+    **Guidelines**:
+      - **Absolute Specificity**: The highest priority is to make the output specific to *this study's unique research*. Avoid generic statements.
+      - **Intelligent Integration**: Combine information thoughtfully, leveraging the best details from each source.
+      - **Problem-Solving Focus**: Actively resolve ambiguity or mild inconsistencies between sources by synthesizing the clearest, most direct 
+        statement about *this specific research*.
+      - **Traceability**: All information must be verifiable from the source contexts.
+
+    **Restrictions**:
+      - Do not invent information or infer beyond what is explicitly provided in the input contexts.
+      - Output must be structured Markdown, without ```.
+
+    **Success Criteria**:
+    - Returns a Markdown formatted text that provides a **highly specific, comprehensive, and accurate context** for the "Introduction" section, 
+      clearly highlighting the *unique problem, objectives, findings, and contributions of the study* based on the combined and refined inputs.
+  expected_output: >
+    A structured text summary, formatted in Markdown, without ```, containing the core elements for the introduction, following a structure like:
+
+    **Elements for the Introduction**:
+    - **Research Problem**:
+        - **Source/Context**: [Ex: Analytical Report - Contributions; Theoretical Foundation Outline - Introduction].
+        - **Content**: [Concise description of the problem or gap addressed by the study, based on extracted information, highly specific to THIS research].
+    - **Main Objectives**:
+        - **Source/Context**: [Ex: Analytical Report - Análise dos Resultados].
+        - **Content**: [Clear list of the study's central objectives, inferred from context, highlighting THIS research's precise goals].
+    - **Main Findings/Results**:
+        - **Source/Context**: [Ex: Analytical Report - Análise dos Resultados; Resultados e Discussão Outline - Results].
+        - **Content**: [Summary of the most significant and impactful results, without excessive detail, emphasizing the novelty and unique impact of THESE specific results].
+    - **Contributions/Implications**:
+        - **Source/Context**: [Ex: Analytical Report - Contribuições; Conclusão Outline - Implicações e Contribuições].
+        - **Content**: [List of the most relevant theoretical and/or practical contributions of the study, framed as UNIQUE advances by THIS study].
+    - **Brief Overview of Methodology**:
+        - **Source/Context**: [Ex: Metodologia Outline - Overview of Methodological Approach].
+        - **Content**: [Concise summary of the key methodological approach, without excessive technical details, specific to THIS research's methods].
+    - **Essential Theoretical Context**:
+        - **Source/Context**: [Ex: Fundamentação Teórica Outline - Teoria da Sincronização Precisa dos Pulsos Ópticos].
+        - **Content**: [Brief explanation of the fundamental theoretical concepts underpinning the study, explicitly connected to THIS study's specific problem, solution, or methodology].
+  
+  agent: introduction_context_extractor 
+  context: [extract_context_from_analytical_report, extract_context_from_section_outlines]
+  
+define_introduction_subsections:
+  description: >
+    Analyze the extracted introductory elements from the output of `synthesize_introduction_context`
+    to define a logical structure of subsections for the "Introduction" section of a scientific paper. The primary goal is to categorize the combined
+    information into coherent, distinct subsections that build a compelling narrative, typically moving from broad context to specific study details 
+    and contributions.
+
+    **Input Detailing**:
+      - **Synthesized Introduction Context (hereinafter refered as `synthesized_introduction_context`)**: 
+        A Markdown structured summary produced by the `synthesize_introduction_context` task. It contains the highly specific and 
+        comprehensive context for the Introduction section.
+        Expected format example:
+        ```markdown
+        **Elements for the Introduction**:
+        - **Research Problem**: [Highly specific problem of THIS study].
+        - **Main Objectives**: [Precise objectives of THIS study].
+        - ...
+        ```
+
+    **Execution Steps**:
+    1.  Review the summarized introductory elements from `synthesize_introduction_context`.
+    2.  Identify logical groupings for these combined elements that correspond to standard introduction components
+        (e.g., general background, problem statement, research objectives, brief methodology, key findings preview, contributions/paper structure).
+    3.  Define subsection names that are clear, concise, and accurately represent these groupings.
+    4.  For each subsection, create a subsection description that briefly outlines the specific aspects or concepts that will be detailed within 
+        that subsection and what is it's goal.
+    5.  Ensure the order of subsections follows a logical flow for an introduction:
+        - Typically starts with general background/context.
+        - Leads to the research problem/gap.
+        - Followed by objectives.
+        - A brief mention of methodology (if deemed necessary for the intro).
+        - A preview of key findings.
+        - And finally, the contributions and an overview of the paper's structure.
+    6.  Assemble your response into a JSON object, with the following structure:
+        - `section_name` (string): Set to "Introdução".
+        - `subsections` (list): A list of objects, where each object represents a defined subsection, with the keys:
+          - `subsection_name` (string): The established name of the subsection.
+          - `subsection_description` (string): The established description of the subsection.
+          - `discussion_topics` (list): An empty list `[]`.
+
+    **Guidelines**:
+    - **Logical Coherence**: Subsections should group related aspects of the introduction.
+    - **Clarity**: Subsection names should be intuitive.
+    - **Narrative Flow**: The sequence should guide the reader effectively through the research story.
+    - **Standard Components**: Aim to include components typically found in a strong scientific introduction.
+
+    **Restrictions**:
+    - Do not create specific discussion topics yet.
+    - Do not invent details not present in the input.
+    - Output must be structured JSON.
+    - Aim for a balanced number of subsections (e.g., 4-7) to ensure comprehensiveness without being overly granular.
+
+    **Success Criteria**:
+    - Output is a valid JSON object.
+    - `section_name` is "Introdução".
+    - `subsections` list contains 4-7 subsection objects.
+    - Each subsection object has `subsection_name` and a `subsection_description`.
+    - All major introductory themes from the input are logically grouped into subsections.
+  expected_output: >
+    A JSON object representing the logical structure of subsections for the "Introduction" section, formatted with the keys "section_name" 
+    (value: "Introdução") and "subsections". The value of the key "subsections" is a list of objects, each object representing a defined subsection.
+    The subsection object has the keys "subsection_name", of value as a string with the name of the subsection, "subsection_description", of value 
+    as a string with the subsection's description, and "discussion_topics", of value as an empty list "[]".
+    The output must be a valid JSON, without Markdown code blocks (e.g., ```json). Here is a sample structure to follow:
+
+    ```json
+    {
+      "section_name": "Introdução",
+      "subsections": [
+        {
+          "subsection_name": "[Nome da Subseção 1]",
+          "subsection_description": "[Breve descrição do que esta subseção abordará e seu objetivo].",
+          "discussion_topics": []
+        },
+        {
+          "subsection_name": "[Nome da Subseção 2]",
+          "subsection_description": "[Breve descrição do que esta subseção abordará e seu objetivo].",
+          "discussion_topics": []
+        }
+      ]
+    }
+    ```
+  agent: introduction_outline_architect
+  context: [synthesize_introduction_context]
+
+expand_introduction_subsections:
+  description: >
+    For each defined subsection from the output of `define_introduction_subsections`, define detailed
+    discussion topics to be later expanded into text content of the Introduction section of a scientific paper. 
+    The primary goal is to break down each `subsection_description` into actionable writing points (topics) that thoroughly explore the relevant
+    introductory elements, their significance, and guide the narrative flow. Use the extracted context from `synthesize_introduction_context` as 
+    the primary source for defining these topics. For each topic, create a concise title, assign a rhetorical purpose, write a detailed topic 
+    description integrating the core information, and provide clear narrative guidance for a Writer Agent.
+
+    **Input Detailing**:
+      - Output of `define_introduction_subsections`: A JSON object containg the initial outline of the Introduction section, without any defined 
+        discussion topics.
+      - Output of `synthesize_introduction_context`:  A Markdown text summary containg highly specific and comprehensive context for the 
+        Introduction section.
+
+    **Execution Steps**:
+    1. Parse the `define_introduction_subsections` output for subsection names and descriptions.
+    2. Parse the `synthesize_introduction_context` outputs for specific introductory elements.
+    3. For each subsection:
+        - Using the `subsection_description` as a guide, select relevant introductory elements from the parsed context.
+        - For each key aspect (e.g., a specific part of the problem, an objective, a key finding, a contribution),
+          formulate a concise `topic` title.
+        - Assign the most appropriate `rhetorical_purpose` from the "List of allowed rhetorical purposes for Introduction" below.
+        - Develop a comprehensive `topic_description` for each `topic`. This description *must* detail the aspect,
+          its significance, and its connection to the overall research, drawing directly from `synthesize_introduction_context` output.
+        - Craft detailed `narrative_guidance` for a Writer Agent. This should specify what to explain (e.g., define the problem,
+          state the objective, briefly describe the finding, explain the contribution's impact). Instruct the writer to cite sources appropriately.
+    4. Assemble each defined topic into a JSON object with keys: `topic`, `rhetorical_purpose`, `topic_description`, `narrative_guidance`.
+    5. Update every subsection object in the parsed `define_introduction_subsections` output `discussion_topics` key with its corresponding topic objects.
+    6. Ensure the final output is a single JSON object.
+
+    **List of allowed rhetorical purposes for Introduction**:
+      - "Establish broad context and background"
+      - "Present specific research problem/gap"
+      - "State the rationale/justification for the study"
+      - "Articulate research objectives"
+      - "Briefly describe methodological approach"
+      - "Preview key findings"
+      - "Highlight novel contributions and implications"
+      - "Outline paper structure"
+      - "Define key terms within the study's scope"
+
+    **Guidelines**:
+    - **Information Synthesis**: Each `topic_description` must be a rich synthesis of the theoretical elements identified from *both* context sources.
+    - **Actionable Guidance**: `narrative_guidance` must be clear and specific for the Writer Agent.
+    - **Completeness**: All significant introductory aspects identified in `synthesize_introduction_context` and relevant to a subsection should be 
+      covered by a topic.
+    - **Logical Flow within Subsections**: Topics should be ordered logically.
+
+    **Restrictions**:
+    - Do not invent details not present in the source inputs.
+    - Output must be structured JSON.
+
+    **Success Criteria**:
+    - Output is a valid JSON object.
+    - `section_name` is "Introdução".
+    - `discussion_topics` lists are created.
+    - Each `discussion_topic` object has non-empty `topic`, `rhetorical_purpose` (from the allowed list),
+      `topic_description`, and `narrative_guidance`.
+    - `topic_description` directly uses information from `synthesize_introduction_context` and correlates to it's topic's `subsection_description`.
+    - `narrative_guidance` is actionable for a writer.
+  expected_output: >
+    A JSON object representing the complete outline for the "Introduction" section, as a completed version of the JSON from 
+    `define_introduction_subsections` by populating the empty list in the "discussion_topics" key from all subsection objects 
+    (every subsection object contains the keys: "subsection_name", "subsection_description", "discussion_topics") within 
+    the "subsections" key list, with detailed discussion topics populated for each subsection as objects. Every discussion 
+    topic object has the keys: "topic", "rhetorical_purpose", "topic_description", and "narrative_guidance", containg 
+    the topic's title, topic's rhetorical purpose, topic's description and topic's narrative guidance as their values 
+    respectively.
+    The output must be a valid JSON, without Markdown code blocks (e.g., ```json). Here is a sample structure to follow:
+
+    ```json
+    {
+      "section_name": "Introdução",
+      "subsections": [
+        {
+          "subsection_name": "[Nome da Subseção 1]",
+          "subsection_description": "[Breve descrição do que esta subseção abordará e seu objetivo].",
+          "discussion_topics": [
+            {
+              "topic": "[Título do Tópico 1.1]",
+              "rhetorical_purpose": "[Propósito Retórico do Tópico 1.1]",
+              "topic_description": "[Descrição detalhada do conteúdo do Tópico 1.1]",
+              "narrative_guidance": "[Guia de Narração para o Tópico 1.1]"
+            },
+            {
+              "topic": "[Título do Tópico 1.2]",
+              "rhetorical_purpose": "[Propósito Retórico do Tópico 1.2]",
+              "topic_description": "[Descrição detalhada do conteúdo do Tópico 1.2]",
+              "narrative_guidance": "[Guia de Narração para o Tópico 1.2]"
+            }
+          ]
+        },
+        {
+          "subsection_name": "[Nome da Subseção 2]",
+          "subsection_description": "[Breve descrição do que esta subseção abordará e seu objetivo].",
+          "discussion_topics": [
+            {
+              "topic": "[Título do Tópico 2.1]",
+              "rhetorical_purpose": "[Propósito Retórico do Tópico 2.1]",
+              "topic_description": "[Descrição detalhada do conteúdo do Tópico 2.1]",
+              "narrative_guidance": "[Guia de Narração para o Tópico 2.1]"
+            }
+          ]
+        }
+      ]
+    }
+    ```
+  agent: introduction_outline_architect
+  context: [define_introduction_subsections, synthesize_introduction_context]
