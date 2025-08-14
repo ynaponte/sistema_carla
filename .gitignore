@@ -115,5 +115,6 @@ trabalhos
 article_vectorstore/*
 drafts
 not_know_what_to_do.txt
-relatorio/
+report/
 outlines/*
+execution_cache/*
