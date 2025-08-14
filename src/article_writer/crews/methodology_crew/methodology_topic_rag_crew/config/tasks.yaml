@@ -151,7 +151,7 @@ write_methodology_topic_text:
       and narrowly asks for a brief factual basis of a non-standard choice.**
     3. Carefully consider "{methodology_topic_title}", "{methodology_topic_description}", "{methodology_rhetorical_purpose}", and critically, 
        "{methodology_narrative_guidance}", which are the topic's title, description, rhetorical purpose, and narrative guidance, respectively.
-    4. Compose a 200-500 word text in Brazilian Portuguese, ensuring that you:
+    4. Compose a 300-600 word text in Brazilian Portuguese, ensuring that you:
         - Directly address the topic's title ("{methodology_topic_title}") and its detailed description.
         - Structure the paragraphs and content flow according to the provided narrative guidance.
         - **Almost exclusively use details from `insights_internal_research` to describe *what was done and how it was done*.**
@@ -193,13 +193,13 @@ write_methodology_topic_text:
       - **The text is free of results, findings, interpretations, discussion of implications, and extensive justifications.**
       - The text appropriately handles information from `insights_external_context`, using it only for brief, standard definitions or protocol citations 
         if essential and guided, not for general justifications.
-      - The text is 200-500 words, in Brazilian Portuguese, and written in an appropriate academic style for a Methodology section.
+      - The text is 300-600 words, in Brazilian Portuguese, and written in an appropriate academic style for a Methodology section.
       - The output is a valid JSON object with "topic_title" and "generated_text" keys.
       - The text provides enough detail to contribute to the replicability of the method described.
 
   expected_output: >
     A JSON object containing the methodology topic title and the generated multi-paragraph scientific text for that topic.
-    The text will be 200-500 words, in Brazilian Portuguese, **strictly descriptive of procedures, materials, and methods**, suitable for a "Methodology" 
+    The text will be 300-600 words, in Brazilian Portuguese, **strictly descriptive of procedures, materials, and methods**, suitable for a "Methodology" 
     section, **and devoid of results, justifications, or discussion.**
     Example structure:
     {
