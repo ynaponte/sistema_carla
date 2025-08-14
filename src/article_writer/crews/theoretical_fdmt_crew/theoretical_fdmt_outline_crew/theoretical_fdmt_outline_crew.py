@@ -18,16 +18,16 @@ class TheoreticalFdmtOutlineCrew:
     
     @before_kickoff
     def input_formatting(self, inputs):
-        inputs['generated_sections_content'] = json.dumps(inputs['generated_sections_content'], indent=2)
+        inputs['methodology_outline'] = json.dumps(inputs['methodology_outline'], indent=2)
         return inputs
 
     @after_kickoff
-    def final_formatting(self, result):
-        methodology_outline = next((
-            task_output.json_dict for task_output in result.tasks_output 
-            if task_output.name == 'expand_methodology_subsections'
+    def final_formatting(self, crew_execution_result):
+        theoretical_foundation_outline = next((
+            task_output.json_dict for task_output in crew_execution_result.tasks_output 
+            if task_output.name == 'expand_theoretical_foundation_subsections'
         ), {})
-        return methodology_outline
+        return theoretical_foundation_outline
 
     @agent
     def theoretical_concept_extractor(self) -> Agent:
