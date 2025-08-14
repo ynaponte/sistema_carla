@@ -197,74 +197,130 @@ define_methodology_subsections:
   agent: methodology_outliner
   context: [analyze_report_for_methodology_components, analyze_sections_for_methodological_context]
 
-expand_introduction_subsections:
+expand_methodology_subsections:
   description: >
-    For each subsection defined by the `define_introduction_subsections` task, detail the discussion topics to be expanded into textual content.
-    The goal is to break down each `subsection_description` into actionable writing points (topics) that capture the narrative aspects of the Introduction.
-    Use the contextual summary from `extract_context_for_introduction` and the subsection definitions from `define_introduction_subsections` as a basis.
-    For each topic, create a concise title, assign a rhetorical purpose, write a detailed description integrating the extracted context, and provide
-    clear narrative guidance for a Writer Agent.
+    For each defined subsection from the output of `define_methodology_subsections`, define detailed discussion topics to be later expanded in their text 
+    content. The primary goal is to break down each `subsection_description` into actionable writing points (topics) that fully encapsulate all aspects 
+    of the study's methodology within that specific area, ensuring clarity, replicability, and direct relevance to the research. To aid in your task, 
+    use the core methodological components and methodological context provided from `analyze_report_for_methodology_components` and 
+    `analyze_sections_for_methodological_context` tasks, respectivaly, as information to help defining the discussion topics. 
+    For each topic, you must create a concise title, assign a rhetorical purpose, write a detailed topic description integrating both core methodological 
+    details and contextual insights, and provide clear narrative guidance for a Writer Agent.
 
     **Input Detailing**:
-      - Output of `define_introduction_subsections`: JSON object with the Introduction's subsection structure.
-      - Output of `extract_context_for_introduction`: Markdown summary of relevant context.
+      - Output of `define_methodology_subsections`:
+        - A JSON object representing the outline for the "Methodology" section, structured as follows:
+          - **`section_name`** (string): Title of the main section, i.e, "Methodology".
+          - **`subsections`** (list of objects): A list containing the assinged subsections of the main section and their definitions, as objects. Each 
+            object in this list contains:
+            - **`subsection_name`** (string): A concise title for the subsection (e.g., "Introduction","Research Design", "Instrumentation").
+            - **`subsection_description`** (string): A brief summary outlining the key elements that will be covered within this subsection.
+            - **`discussion_topics`** (list): An empty list `[]`, as topics were not yet generated and designated when assembling the outline.
+      - **Core Methodological Components**: A structured text summary, formatted in Markdown, containing the core methodological components.
+      - **Methodological Context**: A structured text summary, formatted in Markdown, containing the methodological context from previously generated 
+        sections.
 
     **Execution Steps**:
-    1. Parse the output of `define_introduction_subsections` to get subsections and their descriptions.
-    2. For each subsection:
-        - Review its `subsection_description` and the contextual summary from `extract_context_for_introduction`.
-        - Identify key points or arguments that should be developed within that subsection to fulfill its narrative purpose.
-        - For each point/argument, formulate a concise `topic_title`.
-        - Assign the most appropriate `rhetorical_purpose` from the list below.
-        - Develop a comprehensive `topic_description`, integrating relevant information from the contextual summary (e.g., theoretical concepts for "Background," specific problems for "Research Problem").
-        - Craft detailed `narrative_guidance`, instructing the Writer Agent on how to articulate the topic, what tone to use, and which elements of the context to emphasize to build a cohesive and persuasive argument.
-    3. Assemble each defined topic into its own JSON object.
-    4. Update the `discussion_topics` list for each subsection object in the parsed `define_introduction_subsections` output with the generated topic objects.
-    5. Ensure the final output is a single JSON object.
-
-    **List of allowed rhetorical purposes for the Introduction**:
-       - "Establish general context":
-          Clarification: "Present the broader field of study, its relevance, and the state of the art, setting the stage for the specific problem."
-       - "Identify specific problem/gap":
-          Clarification: "Clearly articulate the research problem, the gap in existing knowledge, or the practical challenge the study addresses."
-       - "Justify the research":
-          Clarification: "Explain why the identified problem is important and deserves investigation, highlighting the relevance and potential impact of the study."
-       - "State research objective(s)":
-          Clarification: "Precisely and unequivocally declare the main and secondary objective(s) of the research."
-       - "Outline contribution/value":
-          Clarification: "Briefly indicate the study's main contribution to the field or to solving the problem."
-       - "Summarize paper structure":
-          Clarification: "Concise_description of how the rest of the paper is organized, section by section."
-       - "Present theoretical framework (briefly)":
-          Clarification: "Succinctly mention the main theoretical framework underpinning the study, if central to the introduction."
+    1. Parse the `define_methodology_subsections` output to retrieve the pre-defined subsection names and their descriptions.
+    2. For the "Introduction" subsection:
+      - Considering its `subsection_description`, create a single discussion topic (`topic`) that summarizes this high-level strategy.
+      - Assign it's rhetorical purpose as "Describe research design"
+      - Write a topic description that concisely outlines the research design and the rationale for the chosen methods.
+      - Provide narrative guidance that instructs a writer to broadly introduce the study's methodological approach and its justification.
+    3. For all other subsections:
+      - Using the `subsection_description` as a primary guide, systematically review the Core Methodological Components from 
+        `analyze_report_for_methodology_components` and Methodological Context from `analyze_sections_for_methodological_context` to identify specific 
+        details, procedures, materials, or analytical steps that logically belong to the subsection.
+      - For each identified methodological element/step, formulate a concise `topic` title.
+      - Assign the most appropriate `rhetorical_purpose` from the list below to each `topic`.
+      - Develop a comprehensive `topic_description` for each `topic`. This description *must* thoroughly integrate specific details (e.g., precise 
+        parameters, configurations, types of materials, steps in a procedure) from `Core Methodological Components` and all relevant contextual information 
+        (e.g., reasons for methodological choices, observed performance, known limitations, connections to study outcomes) from `Methodological Context`. 
+        Ensure the `topic_description` directly elaborates on aspects mentioned or implied by the `subsection_description`.
+      - Craft detailed `narrative_guidance` for a Writer Agent. This guidance should explicitly specify the precise information to include in the final 
+        text to enable another researcher to replicate the study. Additionally, instruct how to articulate the method's significance, its relationship to 
+        the study's findings, implications, or broader academic context.
+    4. Assemble each defined topic into a JSON object of it's own, with the keys:
+      - `topic`(string): A concise title for the discussion topic.
+      - `rhetorical_purpose` (string): The rhetorical purpose of the topic.
+      - `topic_description` (string): A detailed description of the topic, integrating information from both `Core Methodological Components` and 
+        `Methodological Context`.
+      - `narrative_guidance` (string): Explicit instructions for a Writer Agent on what specific information to include and how to articulate it to ensure 
+        clarity, replicability, and contextual relevance.
+    5. Update the `discussion_topics` list for each subsection object in the parsed `define_methodology_subsections` output with the generated topic 
+       objects.
+    6. Ensure the final output is a single JSON object that strictly conforms to the structure:
+      - **`section_name`** (string): Title of the main section, i.e, "Methodology".
+          - **`subsections`** (list of objects): A list containing the assinged subsections of the main section and their definitions, as objects. Each 
+            object in this list contains:
+            - **`subsection_name`** (string): A concise title for the subsection (e.g., "Introduction","Research Design", "Instrumentation").
+            - **`subsection_description`** (string): A brief summary outlining the key elements that will be covered within this subsection.
+            - **`discussion_topics`** (list): A list with the assigned topics for the subsection as objects, each object with the before mentioned key:
+              `topic`, `rhetorical_purpose`, `topic_description` and `narrative_guidance`.
+    
+    **List of allowed rhetorical purposes**:
+      - "Describe research design"
+      - "Describe experimental setup"
+      - "Describe materials and equipment"
+      - "Describe procedure step"
+      - "Describe data collection"
+      - "Describe data analysis"
+      - "Describe validation or calibration"
+      - "Discuss methodological limitations"
+      - "Discuss methodological implications"
+      - "Provide contextual background"
+      - "Explain rationale for method choice"
 
     **Guidelines**:
-    - **Narrative Focus**: Topics should build a cohesive narrative leading the reader from general to specific.
-    - **Contextual Synthesis**: The `topic_description` must reflect the extracted context.
-    - **Clear Guidance**: The `narrative_guidance` must be explicit for the Writer Agent.
+    - **Leverage `subsection_description`**: The `subsection_description` is paramount for defining the scope and focus of topics within that subsection.
+    - **Information Synthesis**: Each `topic_description` must be a rich synthesis of both raw methodological details and their contextual implications, 
+      providing sufficient information for a writer.
+    - **Actionable Guidance**: `narrative_guidance` must be clear, specific, and directly usable by a Writer Agent to produce replicable and coherent text.
+    - **Completeness**: Every significant methodological detail and contextual insight from the input analyses must be covered by at least one topic.
+    - **Logical Consistency**: Topics within each subsection should be logically ordered and contribute to a coherent flow.
 
     **Restrictions**:
-    - Do not invent information not present in the inputs.
-    - Output must be structured JSON.
-    - Each subsection must have at least one topic.
+    - Do not invent any methodological details, procedures, or contextual information that are not explicitly present or directly derivable from the provided input analyses.
+    - Do not generate prose or narrative content beyond the structured JSON output.
+    - Avoid redundancy: each generated topic should cover a distinct aspect of the methodology.
 
     **Success Criteria**:
-    - The output is a valid JSON object and strictly adheres to the described structure.
-    - The `section_name` key is "Introduction".
+    - The output is a valid JSON object.
+    - The JSON object is valid and strictly adheres to the described structure.
+    - The `section_name` is exactly "Metodologia".
+    - The `subsections` list is not empty.
     - All `discussion_topics` lists within each subsection are populated with at least one topic.
-    - Every `discussion_topic` object includes `topic_title`, `rhetorical_purpose` (from the allowed list), `topic_description`, and `narrative_guidance` as non-empty strings.
-    - Topic descriptions and guidance are grounded in the extracted context and the subsection's description.
+    - Every `discussion_topic` object includes `topic`, `rhetorical_purpose`, `topic_description`, and `narrative_guidance` as non-empty strings.
+    - The `rhetorical_purpose` for each topic is chosen exclusively from the "List of allowed rhetorical purposes" list provided in the task description.
+    - The `topic_description` for each topic effectively synthesizes details from both `Core Methodological Components` and `Methodological Context` 
+      inputs, and **directly supports and elaborates on the scope outlined in the parent `subsection_description`**.
+    - The `narrative_guidance` provides clear, specific, and actionable instructions for a writer to ensure replicability and to link methods to 
+      findings/conclusions.
+    - All significant methodological components and contextual insights identified in the preceding analysis tasks are accounted for and covered by at 
+      least one topic across all subsections.
+    - No invented methodological details or topics are present in the output.
+    - The "Introdução" subsection contains exactly one `discussion_topic` that provides a high-level summary of the overall methodological strategy, as 
+      described in its `topic_description`.
+
   expected_output: >
-    A JSON object representing the complete outline for the "Introduction" section.
+    A JSON object representing the complete outline for the "Metodologia" section.
     The object must contain two main keys:
-    - **`section_name`** (string): Must be "Introduction".
+    - **`section_name`** (string): Must be "Metodologia".
     - **`subsections`** (list of objects): A list containing fully populated subsection definitions. Each object in this list must contain:
-        - **`subsection_name`** (string): The concise title for the subsection.
+        - **`subsection_name`** (string): The concise title for the subsection (e.g., "Introduction","Research Design", "Instrumentation").
         - **`subsection_description`** (string): A brief summary outlining the key elements covered in this subsection.
         - **`discussion_topics`** (list of objects): A populated list of discussion topics for the subsection. Each object in this list must contain:
-            - **`topic_title`** (string): A concise title for the discussion topic.
-            - **`rhetorical_purpose`** (string): The rhetorical purpose of this topic, from the allowed list.
-            - **`topic_description`** (string): A comprehensive summary of the topic's focus, integrating relevant contextual information to build the introduction's argument.
-            - **`narrative_guidance`** (string): Clear, specific, and actionable instructions for a Writer Agent on how to elaborate on this particular topic, including tone, argumentative flow, and points to emphasize.
-  agent: introduction_outliner_agent
-  context: [define_introduction_subsections, extract_context_for_introduction]
+            - **`topic`** (string): A concise title or description of a specific methodological point or aspect (e.g., "Configuração Experimental", 
+              "Processamento de Dados", "Análise Estatística").
+            - **`rhetorical_purpose`** (string): The rhetorical purpose of this topic, which *must* be one of the "Allowed Rhetorical Purposes" 
+              explicitly listed in the task description (e.g., "Describe experimental setup", "Describe data analysis").
+            - **`topic_description`** (string): A comprehensive summary of the method's focus, including all relevant parameters, specific configurations, 
+              types of materials, or procedural steps. This description *must* integrate both the core methodological details and any contextual relevance 
+              (such as the method's rationale, observed effectiveness, limitations, or connections to preliminary findings) from the input data. It should 
+              contain sufficient information for a writer to elaborate without needing further consultation.
+            - **`narrative_guidance`** (string): Clear, specific, and actionable instructions for a Writer Agent on how to elaborate on this particular 
+              method in the final paper. This guidance *must* specify critical details to include for ensuring replicability of the study and direct the 
+              writer on how to articulate the method's significance or its connection to the study's outcomes, implications, or broader academic context.
+
+  agent: methodology_outliner
+  context: [define_methodology_subsections, analyze_report_for_methodology_components, analyze_sections_for_methodological_context]
