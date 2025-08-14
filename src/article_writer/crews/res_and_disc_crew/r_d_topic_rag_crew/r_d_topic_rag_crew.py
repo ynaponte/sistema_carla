@@ -36,15 +36,37 @@ class RDTopicRagCrew():
         max_tokens=32000,
         temperature=0.6
     )
-    _should_execute_ve_research = True
-    _should_execute_nr_research = True
+    __should_execute_ve_research = True
+    __should_execute_nr_research = True
 
     @before_kickoff
     def check_inpus(self, inputs: dict):
         # Checa se existem elementos visuais e resultados numéricos a serem pesquisados.
         # Caso não existão, previne a execução das respectivas tarefas
-        self._should_execute_ve_research = inputs.get('visual_elements_to_contextualize', '') != ''
-        self._should_execute_nr_research = inputs.get('numerical_results_to_include', '') != ''
+        # Caso sim, transforma-os de lista para python para string, organizados em uma 
+        # lista formatada em markdown
+        if inputs.get('visual_elements_to_contextualize') != []:
+            self.__should_execute_ve_research = True
+            inputs['visual_elements_to_contextualize'] = "\n".join([
+                f"- name: {element['name']}; role_in_topic: {element['role_in_topic']}"
+                for element in inputs['visual_elements_to_contextualize']
+            ])
+        else:
+            self.__should_execute_ve_research = False
+
+        if inputs.get('numerical_results_to_include') != []:
+            self.__should_execute_nr_research = True
+            inputs['numerical_results_to_include'] = "\n".join([
+                (
+                    f'- verbatim value: {numerical_result["verbatim_value"]}; '
+                    f'role_in_topic: {numerical_result["role_in_topic"]}; '
+                    f'associated visual: {numerical_result["associated_visual"]}'
+                ) 
+                for numerical_result in inputs['numerical_results_to_include']
+            ])
+        else:
+            self.__should_execute_nr_research = False
+            
         return inputs
 
     @agent
@@ -77,7 +99,7 @@ class RDTopicRagCrew():
         return ConditionalTask(
             config=self.tasks_config['visual_elements_research'],
             async_execution=False,
-            condition=lambda x: self._should_execute_ve_research  # Tem que ser 'callable'
+            condition=lambda x: self.__should_execute_ve_research  # Tem que ser 'callable'
         )
 
     @task
@@ -85,7 +107,7 @@ class RDTopicRagCrew():
         return ConditionalTask(
             config=self.tasks_config['numerical_results_research'],
             async_execution=False,
-            condition=lambda x: self._should_execute_nr_research  # Tem que ser 'callable'
+            condition=lambda x: self.__should_execute_nr_research  # Tem que ser 'callable'
         )
 
     @task
