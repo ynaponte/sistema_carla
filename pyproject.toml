@@ -1,0 +1,13 @@
+[project]
+name = "recuperando-env"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12, <3.13"
+dependencies = [
+    "crewai==0.117.0",
+    "langchain>=0.3.27",
+    "langchain-chroma>=0.2.5",
+    "langchain-ollama>=0.3.2",
+    "pymupdf4llm>=0.0.27",
+]
