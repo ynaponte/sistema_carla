@@ -42,7 +42,7 @@ def run_setup_wizard() -> dict:
   console.print("Vamos definir as pastas de trabalho para o seu projeto.")
 
   config = {
-      "docs_path": typer.prompt("Caminho para a pasta contendo o relatório", default="./report"),
+      "report_path": typer.prompt("Caminho para a pasta contendo o relatório", default="./report"),
       "references_path": typer.prompt("Caminho para a pasta de referências", default="./references"),
       "results_path": typer.prompt("Caminho para a pasta de resultados prévios", default="./results"),
       "db_path": typer.prompt("Caminho para a pasta da base de dados vetorial", default="./article_vectorstore")

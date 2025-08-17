@@ -100,7 +100,7 @@ def test_run_wizard_when_config_missing_creates_dirs_and_saves(monkeypatch, tmp_
     # Assert config file saved with wizard keys
     cp = read_cfg()
     assert "paths" in cp
-    assert cp["paths"].get("docs_path") == str(report_dir)
+    assert cp["paths"].get("report_path") == str(report_dir)
     assert cp["paths"].get("references_path") == str(refs_dir)
     assert cp["paths"].get("results_path") == str(results_dir)
     assert cp["paths"].get("db_path") == str(vec_dir)
