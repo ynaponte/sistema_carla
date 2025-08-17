@@ -68,8 +68,8 @@ def check_and_load_dotenv() -> bool:
     dotenv_template = (
       "# Arquivo de configuração de ambiente para o CARLA\n"
       "# Por favor, preencha as variáveis abaixo com suas credenciais.\n\n"
-      'MODEL="ollama/<<NOME-DO-MODELO>>"\n'
-      'CONTEXT_LENGTH="<<JANELA-DE-CONTEXTO>>"\n'
+      'MODEL=ollama/<<NOME-DO-MODELO>>\n'
+      'CONTEXT_LENGTH=<<JANELA-DE-CONTEXTO>>\n'
     )
     
     with open(".env", "w", encoding="utf-8") as f:
@@ -94,16 +94,16 @@ def check_and_load_dotenv() -> bool:
     console.print(action_panel)
     return False # Encerra a execução para o usuário preencher o arquivo
 
-  load_dotenv(encoding="utf-8")
+  load_dotenv(dotenv_path=".env", encoding="utf-8", override=True)
   
   missing_vars = []
   # Verifica se a variável existe e não é o valor placeholder
   model = os.getenv("MODEL")
-  if not model or model == "ollama/<<NOME-DO-MODELO>>":
+  if not model or "ollama/<<NOME-DO-MODELO>>" in model:
     missing_vars.append("MODEL")
 
   context_length = os.getenv("CONTEXT_LENGTH")
-  if not context_length or context_length == "<<JANELA-DE-CONTEXTO>>":
+  if not context_length or "<<JANELA-DE-CONTEXTO>>" in context_length or not context_length.isdigit():
     missing_vars.append("CONTEXT_LENGTH")
 
   if missing_vars:
