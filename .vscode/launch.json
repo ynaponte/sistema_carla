@@ -2,10 +2,19 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Pytest Debug one File",
+            "type": "debugpy",
+            "request": "launch",
+            "args": [
+                "${relativeFileDirname}/${fileBasename}"
+            ],
+            "module": "pytest"
+        },
+        {
             "name": "Depurar Testes Python",
             "type": "debugpy",
             "request": "launch",
-            "module": "src.tests.${fileBasenameNoExtension}",
+            "module": "${relativeFileDirname}.${fileBasenameNoExtension}",
             "cwd": "${workspaceFolder}",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
